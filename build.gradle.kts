@@ -2,42 +2,48 @@ import org.jetbrains.kotlin.konan.properties.loadProperties
 
 plugins {
     id("java")
-    id("org.jetbrains.kotlin.jvm") version "1.9.25"
-    id("org.jetbrains.intellij") version "1.17.4"
+    id("org.jetbrains.kotlin.jvm") version "2.0.21"
+    id("org.jetbrains.intellij.platform") version "2.1.0"
 }
 
+version = "3.6.3"
 group = "com.murphy.proguard"
-version = "3.6.2"
+
+intellijPlatform {
+    pluginConfiguration {
+        ideaVersion.sinceBuild.set("242")
+        ideaVersion.untilBuild.set(provider { null })
+    }
+}
 
 repositories {
     mavenCentral()
+    intellijPlatform {
+        defaultRepositories()
+    }
 }
 
 // Configure Gradle IntelliJ Plugin
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 // http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html
-intellij {
-    version.set("2023.2.6")
-    type.set("IC") // Target IDE Platform
+dependencies {
+    intellijPlatform {
+        //bundledPlugin("org.jetbrains.android")
+        intellijIdeaCommunity("2024.2")
+        bundledPlugin("com.intellij.java")
+        bundledPlugin("org.jetbrains.kotlin")
+        plugins("org.jetbrains.android:242.10180.25")
+        instrumentationTools()
+    }
+}
 
-    plugins.set(listOf("com.intellij.java", "org.jetbrains.kotlin", "org.jetbrains.android"))
+// Set the JVM compatibility versions
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 tasks {
-    // Set the JVM compatibility versions
-    withType<JavaCompile> {
-        sourceCompatibility = "17"
-        targetCompatibility = "17"
-    }
-    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-        kotlinOptions.jvmTarget = "17"
-    }
-
-    patchPluginXml {
-        sinceBuild.set("232")
-        untilBuild.set("241.*")
-    }
-
     publishPlugin {
         // AndProguard token
         val file = rootProject.file("token.properties")
