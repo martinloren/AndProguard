@@ -16,17 +16,17 @@ object KotlinGenerator : BatchGenerator() {
 
     override fun process(first: Project, second: ProgressIndicator, data: List<PsiNamedElement>) {
         super.process(first, second, data)
+        if (config.functionRule.isNotEmpty()) {
+            data.psiFilter<KtNamedFunction> {
+                !it.hasModifier(KtTokens.OVERRIDE_KEYWORD) && !it.isMainFunction() && !it.isAnonymousFunction
+            }.renameEach(RefactorType.KtFunction)
+        }
         if (config.classRule.isNotEmpty()) {
             data.psiFilter<KtObjectDeclaration> { !it.isObjectLiteral() && !it.isCompanion() }
                 .renameEach(RefactorType.KtObject)
             data.psiFilter<KtClass>().renameEach(RefactorType.KtClass)
             data.psiFilter<KtFile> { it.classes.size != 1 || it.hasTopLevelCallables() }
                 .renameEach(RefactorType.KtFile)
-        }
-        if (config.functionRule.isNotEmpty()) {
-            data.psiFilter<KtNamedFunction> {
-                !it.hasModifier(KtTokens.OVERRIDE_KEYWORD) && !it.isMainFunction() && !it.isAnonymousFunction
-            }.renameEach(RefactorType.KtFunction)
         }
     }
 }
