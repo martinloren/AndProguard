@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.konan.properties.loadProperties
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "2.1.0"
+    id("org.jetbrains.kotlin.jvm") version "2.3.0"
     id("org.jetbrains.intellij.platform") version "2.6.0"
 }
 
@@ -21,11 +21,12 @@ repositories {
 // plugins("org.jetbrains.android:242.21829.142")
 dependencies {
     intellijPlatform {
-        androidStudio("2024.2.1.8")
+        androidStudio("2025.3.1.1")
         bundledPlugin("org.jetbrains.android")
         bundledPlugin("org.jetbrains.kotlin")
         bundledPlugin("com.intellij.java")
     }
+    testImplementation("junit:junit:4.13.2")
 }
 
 intellijPlatform {
@@ -33,7 +34,7 @@ intellijPlatform {
     group = "com.murphy.proguard"
     pluginConfiguration {
         ideaVersion.sinceBuild.set("242")
-        ideaVersion.untilBuild.set("242.*")
+        ideaVersion.untilBuild.set("253.*")
     }
 }
 
@@ -50,9 +51,11 @@ tasks {
     publishPlugin {
         // AndProguard token
         val file = rootProject.file("token.properties")
-        val localProperties = loadProperties(file.path)
-        val tokenValue = localProperties["token"].toString()
-        token.set(tokenValue)
+        if (file.exists()) {
+            val localProperties = loadProperties(file.path)
+            val tokenValue = localProperties["token"].toString()
+            token.set(tokenValue)
+        }
         channels.set(listOf("Stable"))
     }
 }
